@@ -6,6 +6,7 @@ help:
 	@echo 'Makefile for Shiny service                        '
 	@echo '                                                  '
 	@echo '   make generate    Generates the protobuf modules'
+	@echo '   make clean       Clean generated files         '
 
 generate:
 	# Ensure we have a virtualenv
@@ -15,16 +16,19 @@ generate:
 	$(GRPCIO_VIRTUALENV)/bin/pip install \
 	    --upgrade grpcio grpcio-tools
 	# Retrieve git repo with common *.proto files.
-	[ -d googleapis-pb ] || git clone \
+	[ -d $(GOOGLEAPIS_PROTOS_DIR) ] || git clone \
 	    https://github.com/googleapis/googleapis \
-	    googleapis-pb \
+	    $(GOOGLEAPIS_PROTOS_DIR) \
 	    --depth=1
 	# Need to install via "pip install --upgrade grpcio-tools"
 	$(PROTOC_CMD) \
 	    --proto_path=. \
-	    --proto_path=googleapis-pb \
+	    --proto_path=$(GOOGLEAPIS_PROTOS_DIR) \
 	    --python_out=. \
 	    --grpc_python_out=. \
 	    shiny.proto
 
-.PHONY: generate
+clean:
+	rm -fr $(GRPCIO_VIRTUALENV) $(GOOGLEAPIS_PROTOS_DIR)
+
+.PHONY: generate clean
