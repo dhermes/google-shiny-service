@@ -1,14 +1,21 @@
+GCLOUD_PROJECT:=$(shell gcloud config list project --format="value(core.project)")
 GRPCIO_VIRTUALENV=$(shell pwd)/grpc_python_venv
 PROTOC_CMD=$(GRPCIO_VIRTUALENV)/bin/python -m grpc.tools.protoc
 GOOGLEAPIS_PROTOS_DIR=$(shell pwd)/googleapis-pb
 
 help:
-	@echo 'Makefile for Shiny service                        '
-	@echo '                                                  '
-	@echo '   make generate    Generates the protobuf modules'
-	@echo '   make clean       Clean generated files         '
+	@echo 'Makefile for Shiny service                                     '
+	@echo '                                                               '
+	@echo '   make generate-proto-files    Generates the protobuf modules.'
+	@echo '   make docker-build    Builds the docker image.               '
+	@echo '   make docker-push    Pushes the docker image.                '
+	@echo '   make generate-container-engine-config    Generates the      '
+	@echo '       Container Engine deployment configuration.              '
+	@echo '   make deploy    Deploys the service to Container Engine.     '
+	@echo '   make clean    Clean generated files.                        '
 
-generate:
+.PHONY: generate-proto-files
+generate-proto-files:
 	# Ensure we have a virtualenv
 	[ -d $(GRPCIO_VIRTUALENV) ] || \
 	    python -m virtualenv $(GRPCIO_VIRTUALENV)
@@ -28,7 +35,22 @@ generate:
 	    --grpc_python_out=shiny \
 	    protos/shiny.proto
 
-clean:
-	rm -fr $(GRPCIO_VIRTUALENV) $(GOOGLEAPIS_PROTOS_DIR)
+.PHONY: docker-build
+docker-build:
+	docker build -t gcr.io/$(GCLOUD_PROJECT)/shiny .
 
-.PHONY: generate clean
+.PHONY: docker-push
+docker-push: docker-build
+	gcloud docker push gcr.io/$(GCLOUD_PROJECT)/shiny
+
+.PHONY: generate-container-engine-config
+generate-container-engine-config:
+	sed "s/\$$GCLOUD_PROJECT/$(GCLOUD_PROJECT)/g" container-engine.tmpl.yaml > container-engine.yaml
+
+.PHONY: deploy
+deploy: generate-container-engine-config docker-push
+	kubectl create -f container-engine.yaml
+
+.PHONY: clean
+clean:
+	rm -fr $(GRPCIO_VIRTUALENV) $(GOOGLEAPIS_PROTOS_DIR) container-engine.yaml
