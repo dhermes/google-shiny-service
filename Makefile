@@ -6,7 +6,7 @@ GOOGLEAPIS_PROTOS_DIR=$(shell pwd)/googleapis-pb
 help:
 	@echo 'Makefile for Shiny service                                     '
 	@echo '                                                               '
-	@echo '   make generate-proto-files    Generates the protobuf modules.'
+	@echo '   make compile-proto-files    Generates the protobuf modules. '
 	@echo '   make docker-build    Builds the docker image.               '
 	@echo '   make docker-push    Pushes the docker image.                '
 	@echo '   make generate-container-engine-config    Generates the      '
@@ -14,8 +14,8 @@ help:
 	@echo '   make deploy    Deploys the service to Container Engine.     '
 	@echo '   make clean    Clean generated files.                        '
 
-.PHONY: generate-proto-files
-generate-proto-files:
+.PHONY: compile-proto-files
+compile-proto-files:
 	# Ensure we have a virtualenv
 	[ -d $(GRPCIO_VIRTUALENV) ] || \
 	    python -m virtualenv $(GRPCIO_VIRTUALENV)
@@ -37,11 +37,11 @@ generate-proto-files:
 
 .PHONY: docker-build
 docker-build:
-	docker build -t gcr.io/$(GCLOUD_PROJECT)/shiny .
+	docker build --tag "gcr.io/$(GCLOUD_PROJECT)/shiny" .
 
 .PHONY: docker-push
 docker-push: docker-build
-	gcloud docker push gcr.io/$(GCLOUD_PROJECT)/shiny
+	gcloud docker push "gcr.io/$(GCLOUD_PROJECT)/shiny"
 
 .PHONY: generate-container-engine-config
 generate-container-engine-config:
@@ -49,7 +49,7 @@ generate-container-engine-config:
 
 .PHONY: deploy
 deploy: generate-container-engine-config docker-push
-	kubectl create -f container-engine.yaml
+	kubectl create --filename container-engine.yaml
 
 .PHONY: clean
 clean:
