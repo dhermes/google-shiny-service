@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import grpc
 
-import shiny_pb2
+from shiny import shiny_pb2
 
 
 def run():

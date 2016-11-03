@@ -1,3 +1,5 @@
 # Generated files.
 googleapis-pb/
 grpc_python_venv/
+__pycache__
+*.pyc

@@ -18,11 +18,12 @@ class Shiny(shiny_pb2.ShinyServicer):
         return empty_pb2.Empty()
 
 
-def serve():
+def serve(bind='[::]:50051'):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     shiny_pb2.add_ShinyServicer_to_server(Shiny(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port(bind)
     server.start()
+    print('gRPC server listening on {}.'.format(bind))
     try:
         while True:
             time.sleep(_ONE_DAY_IN_SECONDS)

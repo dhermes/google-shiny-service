@@ -22,11 +22,11 @@ generate:
 	    --depth=1
 	# Need to install via "pip install --upgrade grpcio-tools"
 	$(PROTOC_CMD) \
-	    --proto_path=. \
+	    --proto_path=protos \
 	    --proto_path=$(GOOGLEAPIS_PROTOS_DIR) \
-	    --python_out=. \
-	    --grpc_python_out=. \
-	    shiny.proto
+	    --python_out=shiny \
+	    --grpc_python_out=shiny \
+	    protos/shiny.proto
 
 clean:
 	rm -fr $(GRPCIO_VIRTUALENV) $(GOOGLEAPIS_PROTOS_DIR)
