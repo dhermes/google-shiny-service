@@ -30,5 +30,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--target', default=_DEFAULT_TARGET,
         help='Target host/port where the server is running.')
+
     args = parser.parse_args()
+
     run(args.target)
