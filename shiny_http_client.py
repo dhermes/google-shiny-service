@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 
 import requests
+from six.moves import urllib
 
 
 _DEFAULT_TARGET = 'localhost:8080'
@@ -10,9 +11,11 @@ _DEFAULT_TARGET = 'localhost:8080'
 
 def run(target):
     unicorn_name = 'Clover Sparkle Boy'
-    url = 'http://{}/v1/do-nothing/{}'.format(target, unicorn_name)
+    url = 'http://{}/v1/do-nothing/{}'.format(
+        target, urllib.parse.quote(unicorn_name))
 
-    response = requests.post(url)
+    response = requests.post(
+        url, json={'transmogrify': 'doodad'})
 
     print('Client received:')
     print(response.status_code)
